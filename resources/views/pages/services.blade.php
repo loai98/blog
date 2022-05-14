@@ -1,11 +1,15 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <title>{{config("app.name" , "Blog")}}</title>
-    </head>
-    <body class="antialiased">
-        <h1>Services</h1>
-        <p>Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.</p>
+@extends('layout.app')
 
-    </body>
-</html>
+@section('content')
+
+    <h1>{{ $title }}</h1>
+    <p>Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts
+        and visual mockups.</p>
+    @if (count($services) > 0)
+        <div class="list-group">
+            @foreach ($services as $service)
+                <li class="list-group-item">{{ $service }}</li>
+            @endforeach
+        </div>
+    @endif
+@endsection

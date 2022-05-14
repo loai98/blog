@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PostController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,17 +16,15 @@ use App\Http\Controllers\PageController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
 
 Route::get('/user/{name}/{id}', function ($name , $id) {
     [PageController::class ,"about"];
 });
 
 
-
- Route::get("/about", [PageController::class ,"about"]);
- Route::get("/index", [PageController::class ,"index"]);
- Route::get("/services", [PageController::class ,"services"]);
+Route::get("/", [PageController::class ,"index"]);
+Route::get("/about", [PageController::class ,"about"]);
+Route::get("/services", [PageController::class ,"services"]);
+Route::resource("posts", PostController::class);
 
