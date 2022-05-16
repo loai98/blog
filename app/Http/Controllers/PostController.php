@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use Illuminate\Support\Facades\DB;
+;
 
 
 class PostController extends Controller
@@ -15,11 +17,13 @@ class PostController extends Controller
      */
     public function index()
     {
+     //   return DB::select("select * from posts");
+     //     return Post::orderBy("created_at","desc")->take(2)->get();
+    // return Post::orderBy("created_at","desc")->paginate(1)
         $data= [
             'title'=> "Posts",
-             'posts' => Post::all(),
-        ];
-        
+             'posts' => Post::orderBy("created_at","desc")->get(),
+        ];        
        return view('posts.index')->with($data);
     }
 
@@ -30,7 +34,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view("posts.create")->with('title',"Create");
     }
 
     /**
@@ -41,7 +45,15 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $post = new Post();
+      //  $post->title =
+        return  $request->input('title');
+        // $post->title = $request->title;
+        // $post->body = $request->body;
+        $post->save();
+
+
+        return redirect('posts');
     }
 
     /**
@@ -52,7 +64,16 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        //
+        $post = Post::find($id);
+        if($post){
+            $content = [
+                'title' => $post->title,
+                'post' => $post
+            ];
+            $post = Post::find($id);
+            return view("posts.show")->with($content);
+        }
+        return "Not found";
     }
 
     /**
@@ -63,7 +84,7 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+        //return "edit " . $id;
     }
 
     /**

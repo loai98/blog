@@ -9,12 +9,13 @@
                     {{ $post->title }}
                 </h2>
                 <div class="card-body">
-                    <small>{{$post->created_at}}
+                    <small>{{$post->created_at}}</small>
                   <p class="card-text">{{$post->body}}</p>
                   <a href="posts/{{$post->id}}" class="btn btn-primary">View More</a>
                 </div>
               </div>
         @endforeach
+        {{-- {{$posts->links()}} --}}
     @endif
 
 @endsection
