@@ -2,29 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Post;
-use Illuminate\Support\Facades\DB;
-;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class PostController extends Controller {
+
+        /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth',['except'=>['index','show']]);
+    }
 
 
-class PostController extends Controller
-{
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-     //   return DB::select("select * from posts");
-     //     return Post::orderBy("created_at","desc")->take(2)->get();
-    // return Post::orderBy("created_at","desc")->paginate(1)
-        $data= [
-            'title'=> "Posts",
-             'posts' => Post::orderBy("created_at","desc")->get(),
-        ];        
-       return view('posts.index')->with($data);
+    public function index() {
+        //   return DB::select("select * from posts");
+        //     return Post::orderBy("created_at","desc")->take(2)->get();
+        // return Post::orderBy("created_at","desc")->paginate(1)
+        $data = [
+            'title' => "Posts",
+            'posts' => Post::orderBy("created_at", "desc")->get(),
+        ];
+        return view('posts.index')->with($data);
     }
 
     /**
@@ -32,9 +40,8 @@ class PostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        return view("posts.create")->with('title',"Create");
+    public function create() {
+        return view("posts.create")->with('title', "Create");
     }
 
     /**
@@ -43,17 +50,20 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
+
+        $this->validate($request,[
+            'title'=>'required',
+            'body'=>'required'
+        ]);
+
         $post = new Post();
-      //  $post->title =
-        return  $request->input('title');
-        // $post->title = $request->title;
-        // $post->body = $request->body;
+        $post->title = $request->input('title');
+        $post->body = $request->input('body');
+        $post->user_id= auth()->user()->id;
         $post->save();
 
-
-        return redirect('posts');
+        return redirect('/posts')->with('success', 'Post Created');
     }
 
     /**
@@ -62,15 +72,14 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show($id) {
         $post = Post::find($id);
-        if($post){
+        if ($post) {
             $content = [
+                'user_id'=>$post->user_id,
                 'title' => $post->title,
-                'post' => $post
+                'post' => $post,
             ];
-            $post = Post::find($id);
             return view("posts.show")->with($content);
         }
         return "Not found";
@@ -82,9 +91,17 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        //return "edit " . $id;
+    public function edit($id) {
+       
+        $post = Post::find($id);
+        if(auth()->user()->id !== $post->user_id){
+            return redirect('posts/'.$post->id)->with('error','Access denied');
+        }
+        $content =[
+            'title'=>'Edit ',
+            'post'=>$post
+        ];
+        return view('posts.edit')->with($content);
     }
 
     /**
@@ -94,9 +111,12 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(Request $request, $id) {
+        $post = Post::find($id);
+        $post->title = $request->input('title');
+        $post->body = $request->input('body');
+        $post->save();
+        return redirect('posts/'.$id)->with('success',"Post updated");
     }
 
     /**
@@ -105,8 +125,13 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        //
+    public function destroy($id) {
+
+        $post = Post::find($id);
+        if(auth()->user()->id !== $post->user_id){
+            return redirect('posts/'.$post->id)->with('error','Access denied');
+        }
+        $post->delete();
+       return redirect('/posts')->with('delete', "Post Deleted");
     }
 }

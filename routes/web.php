@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
+use Illuminate\Support\Facades\Auth;
 
 
 /*
@@ -28,3 +29,7 @@ Route::get("/about", [PageController::class ,"about"]);
 Route::get("/services", [PageController::class ,"services"]);
 Route::resource("posts", PostController::class);
 
+
+Auth::routes();
+
+Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
