@@ -11292,3 +11292,8 @@ header.header {
   top: 0;
   z-index: 1;
 }
+
+.field-media {
+  max-height: 200px;
+  overflow: hidden;
+}

@@ -5,6 +5,11 @@
 
 <div class="post mb-5">
     <h1>{{ $post->title }}</h1>
+    @if ($post->image)
+
+    <img src = '/storage/images/{{$post->image}}' width="100%">
+        
+    @endif
     <p>{!! $post->body !!}</p>
     <small>{{$post->created_at}}</small>
 </div>

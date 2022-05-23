@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
 
 class PostController extends Controller {
 
@@ -54,13 +55,24 @@ class PostController extends Controller {
 
         $this->validate($request,[
             'title'=>'required',
-            'body'=>'required'
+            'body'=>'required',
+            'image'=>'image|nullable'
         ]);
-
         $post = new Post();
         $post->title = $request->input('title');
         $post->body = $request->input('body');
         $post->user_id= auth()->user()->id;
+
+        if($request->hasFile('image')){
+            $imageNameWithExtintion =  $request->file('image'); 
+            $imageName= pathinfo($imageNameWithExtintion->getClientOriginalName(), PATHINFO_FILENAME);
+            $imageExtintion=$imageNameWithExtintion->getClientOriginalExtension();
+            $fileNameToSave = $imageName.Time().'.'.$imageExtintion;
+            $post->image = $fileNameToSave;
+            $request->file('image')->storeAs('public/images',$fileNameToSave);
+       }
+
+
         $post->save();
 
         return redirect('/posts')->with('success', 'Post Created');
@@ -115,6 +127,15 @@ class PostController extends Controller {
         $post = Post::find($id);
         $post->title = $request->input('title');
         $post->body = $request->input('body');
+        if($request->hasFile('image')){
+            $fileNameWithExtintion = $request->file('image');
+            $imageName = pathinfo($fileNameWithExtintion,PATHINFO_FILENAME); 
+            $imageExtintion = $fileNameWithExtintion->getClientOriginalExtension();
+            $fileNameToSave = $imageName. time() .'.'.$imageExtintion;
+            $request->file('image')->storeAs('public/images',$fileNameToSave); 
+            Storage::delete('public/images/'.$post->image);
+            $post->image = $fileNameToSave;
+        }
         $post->save();
         return redirect('posts/'.$id)->with('success',"Post updated");
     }
@@ -129,9 +150,13 @@ class PostController extends Controller {
 
         $post = Post::find($id);
         if(auth()->user()->id !== $post->user_id){
-            return redirect('posts/'.$post->id)->with('error','Access denied');
+            return redirect('posts/'.$id)->with('error','Access denied');
+        }
+        if($post->image){
+            Storage::delete('public/images/'.$post->image);
         }
         $post->delete();
+
        return redirect('/posts')->with('delete', "Post Deleted");
     }
 }

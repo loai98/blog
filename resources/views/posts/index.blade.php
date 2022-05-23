@@ -12,15 +12,24 @@
                 <h2 class="card-header">
                     {{ $post->title }}
                 </h2>
-                <div class="card-body">
-                    <small>{{ $post->created_at }}</small>
-                    <p class="card-text">{{ $post->body }}</p>
+                <div class="card-body row">
+                    <div class="col-4 field-media">
 
-                    <div class="d-flex justify-content-between">
+                    @if ($post->image)
+                        <img src = 'storage/images/{{$post->image}}' width="100%">
+                    @endif
+                </div>
+
+
+                <div class="col-8">
+                    <small>{{ $post->created_at }}</small>
+                    <p class="card-text">{!! $post->body !!}</p>
+                </div>
+                    <div class="d-flex justify-content-between mt-3">
                         <a href="posts/{{ $post->id }}" class="btn btn-primary">View More</a>
                         @auth
                             @if (auth()->user()->id == $post->user_id)
-                                {!! Form::open(['url' => 'posts/' . $post->id, 'method' => 'DELETE']) !!}
+                                {!! Form::open(['url' => 'posts/'.$post->id, 'method' => 'DELETE']) !!}
                                 {{ Form::submit('Delete', ['class' => 'btn btn-danger']) }}
                                 {!! Form::close() !!}
                             @endif
